@@ -1,0 +1,69 @@
+body {
+    background-color: #222;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    touch-action: none; /* Evita scrolls no mobile */
+}
+
+#ui { margin: 10px 0; }
+
+#board {
+    width: 240px; 
+    height: 400px;
+    background-color: #cc0000; /* Pista Vermelha */
+    position: relative;
+    border-left: 8px double #000;
+    border-right: 8px double #000;
+    overflow: hidden;
+}
+
+#player {
+    width: 10px;
+    height: 10px;
+    background-color: #000; /* Carro Preto */
+    position: absolute;
+    bottom: 30px;
+    left: 105px;
+    transition: 0.1s;
+    box-shadow: 10px 0 #000, -10px 0 #000, 0 -10px #000, 0 10px #000, 10px 20px #000, -10px 20px #000;
+}
+
+.obstacle {
+    width: 10px;
+    height: 10px;
+    background-color: #000;
+    position: absolute;
+    box-shadow: 10px 0 #000, -10px 0 #000, 0 10px #000, 0 -10px #000, 10px -20px #000, -10px -20px #000;
+}
+
+#game-over-screen {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+#restart-btn {
+    padding: 10px 20px;
+    background: #cc0000;
+    color: white;
+    border: 2px solid white;
+    cursor: pointer;
+}
+
+#controls { margin-top: 20px; display: flex; gap: 40px; }
+
+.btn {
+    width: 70px; height: 70px;
+    background: #000; color: white;
+    border: 2px solid #fff; border-radius: 50%;
+    font-size: 25px;
+}
