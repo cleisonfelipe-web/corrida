@@ -1,24 +1,25 @@
 const player = document.getElementById('player');
 const board = document.getElementById('board');
 const scoreElement = document.getElementById('score');
-const gameOverScreen = document.getElementById('game-over-screen');
-const finalScoreElement = document.getElementById('final-score');
-const restartBtn = document.getElementById('restart-btn');
 
 let pontos = 0;
-let posX = 105;
+let posX = 40; 
 let velocidade = 5;
 let jogoAtivo = true;
+let pausado = false;
 
-// Movimento
-function mover(direcao) {
+document.getElementById('pause-btn').onclick = () => {
     if (!jogoAtivo) return;
-    if (direcao === 'esquerda' && posX > 45) posX -= 60;
-    if (direcao === 'direita' && posX < 165) posX += 60;
+    pausado = !pausado;
+    document.getElementById('pause-overlay').style.display = pausado ? 'flex' : 'none';
+};
+
+function mover(direcao) {
+    if (!jogoAtivo || pausado) return;
+    posX = (direcao === 'esquerda') ? 40 : 140;
     player.style.left = posX + 'px';
 }
 
-// Botões
 document.getElementById('left-btn').onclick = () => mover('esquerda');
 document.getElementById('right-btn').onclick = () => mover('direita');
 document.addEventListener('keydown', (e) => {
@@ -26,14 +27,25 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight') mover('direita');
 });
 
-restartBtn.onclick = () => location.reload();
+document.getElementById('restart-btn').onclick = () => location.reload();
+
+function gerarExplosao(x, y) {
+    for (let i = 0; i < 12; i++) {
+        const p = document.createElement('div');
+        p.classList.add('particle');
+        p.style.setProperty('--dx', (Math.random() - 0.5) * 120 + "px");
+        p.style.setProperty('--dy', (Math.random() - 0.5) * 120 + "px");
+        p.style.left = x + "px"; p.style.top = y + "px";
+        board.appendChild(p);
+        setTimeout(() => p.remove(), 500);
+    }
+}
 
 function criarObstaculo() {
-    if (!jogoAtivo) return;
+    if (!jogoAtivo || pausado) return;
     const obs = document.createElement('div');
     obs.classList.add('obstacle');
-    const faixas = [45, 105, 165];
-    let laneX = faixas[Math.floor(Math.random() * faixas.length)];
+    const laneX = Math.random() > 0.5 ? 40 : 140;
     obs.style.left = laneX + 'px';
     obs.style.top = '-40px';
     board.appendChild(obs);
@@ -41,14 +53,23 @@ function criarObstaculo() {
     let posY = -40;
     let animacao = setInterval(() => {
         if (!jogoAtivo) { clearInterval(animacao); return; }
+        if (pausado) return;
         posY += velocidade;
         obs.style.top = posY + 'px';
 
-        // Colisão
-        if (posY > 340 && posY < 390 && laneX === posX) {
+        if (posY > 310 && posY < 380 && laneX === posX) {
             jogoAtivo = false;
-            finalScoreElement.innerText = pontos;
-            gameOverScreen.style.display = 'flex';
+            board.classList.add('shake');
+            gerarExplosao(posX + 10, posY + 15);
+            
+            let recorde = localStorage.getItem('highScore') || 0;
+            if (pontos > recorde) { localStorage.setItem('highScore', pontos); recorde = pontos; }
+
+            setTimeout(() => {
+                document.getElementById('final-score').innerText = pontos;
+                document.getElementById('high-score').innerText = recorde;
+                document.getElementById('game-over-screen').style.display = 'flex';
+            }, 600);
         }
 
         if (posY > 450) {
@@ -56,7 +77,7 @@ function criarObstaculo() {
             obs.remove();
             pontos++;
             scoreElement.innerText = pontos;
-            if (pontos % 5 === 0) velocidade += 1; // Aumenta velocidade
+            if (pontos % 5 === 0) velocidade += 0.8;
         }
     }, 20);
 }
